@@ -15,26 +15,15 @@ parser.add_argument('--dataset',
                       dest='dataset',
                       required=True,
                       help='Bigquery dataset')
-parser.add_argument('--table',
-                      dest='table',
-                      required=True,
-                      help='Bigquery table')
 
 path_args, pipeline_args = parser.parse_known_args()
 
-inputs_pattern = path_args.input
-#project_id = path_args.project
+input_path = path_args.input
 dataset_id = path_args.dataset
-table_id = path_args.table
 
 options = PipelineOptions(pipeline_args)
 
 p = beam.Pipeline(options = options)
-
-def print_rows(x):
-    print(x)
-    print("---------------------")
-
 
 def remove_colons_and_update_datetime(row):
     record=row.split(',')
@@ -74,30 +63,41 @@ def to_json(csv_str):
 
 cleaned_data=(
     p
-    | beam.io.ReadFromText(inputs_pattern,skip_header_lines=1)
+    | beam.io.ReadFromText(input_path,skip_header_lines=1)
     | 'Remove colons and merge date and time columns into single column' >> beam.Map(remove_colons_and_update_datetime)
     | 'Lower the alphabets' >> beam.Map(lambda row: row.lower())
     | 'Remove special characters' >> beam.Map(remove_special_characters)
 )
 
-write_to_bq=(
-	cleaned_data
-    | beam.Map(to_json)
-    | 'Write data to BigQuery' >> beam.io.WriteToBigQuery(
-        table=table_id,
-        dataset=dataset_id,
-        additional_bq_parameters={'timePartitioning': {'type': 'DAY'}},
-        schema='SCHEMA_AUTODETECT'
+delivered_orders=(
+    cleaned_data
+    | beam.Filter(lambda x:x.split(',')[7]=='delivered')
+)
+
+other_orders=(
+    cleaned_data
+    | beam.Filter(lambda x:x.split(',')[7]!='delivered')
+)
+
+
+(delivered_orders
+ | 'Delivered orders' >> beam.Map(to_json)
+ | 'Write delivered orders data to BigQuery' >> beam.io.WriteToBigQuery(
+    table='delivered_orders',
+    dataset=dataset_id,
+    additional_bq_parameters={'timePartitioning': {'type': 'DAY'}},
+    schema='SCHEMA_AUTODETECT'
+    )
+)
+
+(other_orders
+ | 'Other orders' >> beam.Map(to_json)
+ | 'Write other orders data to BigQuery' >> beam.io.WriteToBigQuery(
+    table='other_orders',
+    dataset=dataset_id,
+    additional_bq_parameters={'timePartitioning': {'type': 'DAY'}},
+    schema='SCHEMA_AUTODETECT'
     )
 )
 
 p.run()
-
-#Remove colons from items column and join date and time into one single column
-#Lower alphabets
-#Remove special characters
-
-#Filter on basis of order status-delivered,other
-#write to different bq tables on basis of order status
-
-#Create a view that will only show current date's data
