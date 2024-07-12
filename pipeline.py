@@ -18,10 +18,12 @@ parser.add_argument('--dataset',
 
 path_args, pipeline_args = parser.parse_known_args()
 
-input_path = path_args.input
-dataset_id = path_args.dataset
-
-options = PipelineOptions(pipeline_args)
+input_path=path_args.input
+dataset_id=path_args.dataset
+#schema='customer_id:STRING,datetime:TIMESTAMP,order_id:STRING,items:STRING,amount:INTEGER,mode:STRING,restaurant:STRING,status:STRING,ratings:INTEGER,feedback:STRING'
+schema='SCHEMA_AUTODETECT'
+additional_bq_parameters={'timePartitioning': {'type': 'DAY','field':'datetime'}}
+options=PipelineOptions(pipeline_args)
 
 p = beam.Pipeline(options = options)
 
@@ -71,12 +73,12 @@ cleaned_data=(
 
 delivered_orders=(
     cleaned_data
-    | beam.Filter(lambda x:x.split(',')[7]=='delivered')
+    | 'Filter delivered orders' >> beam.Filter(lambda x:x.split(',')[7]=='delivered')
 )
 
 other_orders=(
     cleaned_data
-    | beam.Filter(lambda x:x.split(',')[7]!='delivered')
+    | 'Filter other orders' >> beam.Filter(lambda x:x.split(',')[7]!='delivered')
 )
 
 
@@ -85,8 +87,8 @@ other_orders=(
  | 'Write delivered orders data to BigQuery' >> beam.io.WriteToBigQuery(
     table='delivered_orders',
     dataset=dataset_id,
-    additional_bq_parameters={'timePartitioning': {'type': 'DAY'}},
-    schema='SCHEMA_AUTODETECT'
+    additional_bq_parameters=additional_bq_parameters,
+    schema=schema
     )
 )
 
@@ -95,8 +97,8 @@ other_orders=(
  | 'Write other orders data to BigQuery' >> beam.io.WriteToBigQuery(
     table='other_orders',
     dataset=dataset_id,
-    additional_bq_parameters={'timePartitioning': {'type': 'DAY'}},
-    schema='SCHEMA_AUTODETECT'
+    additional_bq_parameters=additional_bq_parameters,
+    schema=schema
     )
 )
 

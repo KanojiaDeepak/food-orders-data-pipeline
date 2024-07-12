@@ -1,0 +1,19 @@
+{
+    "name": "Batch Data Pipeline Flex Template",
+    "description": "A batch pipeline for food orders data",
+    "parameters": [
+      {
+        "name": "input",
+        "label": "Path of input file",
+        "helpText": "Path of input file, in the form 'gs:BUCKET/PATH'.",
+        "regexes": [
+            "^gs:\\/\\/[^\\n\\r]+$"
+        ]
+      },
+      {
+        "name": "dataset",
+        "label": "BigQuery dataset name.",
+        "helpText": "BigQuery dataset name"
+      }
+    ]
+  }
