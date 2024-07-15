@@ -1,6 +1,8 @@
 # Food Orders Batch Data Pipeline
 This data pipeline runs everyday which triggers dataflow flex template that fetches data from GCS for respective date and do transformations and write to bigquery tables.
 
+![architecture diagram](./architecture.png)
+
 ## Google Cloud Services Used
 
 ### Google Cloud Storage
