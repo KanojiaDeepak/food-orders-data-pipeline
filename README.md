@@ -53,7 +53,7 @@ Dataflow pipeline does the following:
 
 #### Run dataflow job to check if the job runs fine
 ```
-python pipeline.py \
+python batch_pipeline.py \
     --region us-central1 \
     --runner DataflowRunner \
     --project <PROJECT_ID> \
@@ -71,7 +71,7 @@ gcloud dataflow flex-template build gs://<BUCKET>/batch_pipeline.json \
  --flex-template-base-image "PYTHON3" \
  --metadata-file "metadata.json" \
  --py-path "." \
- --env "FLEX_TEMPLATE_PYTHON_PY_FILE=pipeline.py" \
+ --env "FLEX_TEMPLATE_PYTHON_PY_FILE=batch_pipeline.py" \
  --env "FLEX_TEMPLATE_PYTHON_REQUIREMENTS_FILE=requirements.txt"
 ```
 
