@@ -6,13 +6,12 @@ import os
 # Set the environment variable for authentication
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service_account.json"
 
-# Initialize Pub/Sub publisher
-project_id = 'high-plating-431207-s0'
+project_id = ''
 topic_id = 'demo'
 publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, topic_id)
 publish_futures = []
-# Read the CSV file
+
 csv_file_path = "data/food_daily_12_07_2024.csv"
 def get_callback(
     publish_future: pubsub_v1.publisher.futures.Future, data: str
