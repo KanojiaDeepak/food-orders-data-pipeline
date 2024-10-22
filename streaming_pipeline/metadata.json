@@ -1,0 +1,19 @@
+{
+    "name": "Streaming Data Pipeline Flex Template",
+    "description": "A batch pipeline for food orders data",
+    "parameters": [
+      {
+        "name": "topic",
+        "label": "Pubsub topic name",
+        "helpText": "Name of pubsub topic, in the form 'projects/<PROJECT_ID>/topics/<TOPIC_NAME>'.",
+        "regexes": [
+            "^projects\\/[^\\/]+\\/topics\\/[^\\/]+$"
+        ]
+      },
+      {
+        "name": "dataset",
+        "label": "BigQuery dataset name.",
+        "helpText": "BigQuery dataset name"
+      }
+    ]
+  }
